@@ -13,10 +13,12 @@ public class TicketCostCalculatorImpl implements TicketCostCalculator {
         TicketRequestsCounter.calculateTicketsForType(
                 TicketTypeRequest.Type.ADULT, ticketTypeRequests)
             * ADULT_TICKET_COST;
+
     int childrenCost =
         TicketRequestsCounter.calculateTicketsForType(
                 TicketTypeRequest.Type.CHILD, ticketTypeRequests)
             * CHILD_TICKET_COST;
+
     int infantCost =
         TicketRequestsCounter.calculateTicketsForType(
                 TicketTypeRequest.Type.INFANT, ticketTypeRequests)

@@ -17,6 +17,11 @@ public class AccountValidatorImplTest {
     }
 
     @Test
+    public void nullAccountNumberIsInvalid() {
+        Assert.assertFalse(accountValidator.isAccountValid(null));
+    }
+
+    @Test
     public void negativeAccountNumberIsInvalid() {
         Assert.assertFalse(accountValidator.isAccountValid(-1L));
     }

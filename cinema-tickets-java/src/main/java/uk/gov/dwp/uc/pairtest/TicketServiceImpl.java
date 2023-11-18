@@ -15,7 +15,7 @@ import uk.gov.dwp.uc.pairtest.exception.InvalidPurchaseException;
 
 @RequiredArgsConstructor
 public class TicketServiceImpl implements TicketService {
-  /** Should only have private methods other than the one below. */
+
   static final Logger logger = LogManager.getLogger(AccountValidator.class);
 
   private final SeatReservationService seatReservationService;
@@ -30,16 +30,17 @@ public class TicketServiceImpl implements TicketService {
 
     if (!accountValidator.isAccountValid(accountId)) {
       logger.warn("Account is invalid");
-      throw new InvalidPurchaseException();
+      throw new InvalidPurchaseException("Account is invalid");
     }
 
     if (!ticketTypeRequestsValidator.areTicketRequestsValid(ticketTypeRequests)) {
-      logger.warn("ticketTypeRequests are invalid");
-      throw new InvalidPurchaseException();
+      logger.warn("TicketTypeRequests are invalid");
+      throw new InvalidPurchaseException("TicketTypeRequests are invalid");
     }
 
     reserveSeats(accountId, ticketTypeRequests);
     makePayment(accountId, ticketTypeRequests);
+    logger.info("Tickets successfully purchased");
   }
 
   private void reserveSeats(Long accountId, TicketTypeRequest[] ticketTypeRequests) {
@@ -48,10 +49,14 @@ public class TicketServiceImpl implements TicketService {
             + TicketRequestsCounter.calculateTicketsForType(Type.CHILD, ticketTypeRequests);
 
     seatReservationService.reserveSeat(accountId, totalSeats);
+    logger.info("Called seatReservationService to reserve {} seats", totalSeats);
   }
 
   private void makePayment(Long accountId, TicketTypeRequest[] ticketTypeRequests) {
-    ticketPaymentService.makePayment(
-        accountId, ticketCostCalculator.calculateTicketsCost(ticketTypeRequests));
+    int totalTicketCost = ticketCostCalculator.calculateTicketsCost(ticketTypeRequests);
+    ticketPaymentService.makePayment(accountId, totalTicketCost);
+    logger.info(
+        "Called TicketPaymentService make payment of {} (account number redacted)",
+        totalTicketCost);
   }
 }

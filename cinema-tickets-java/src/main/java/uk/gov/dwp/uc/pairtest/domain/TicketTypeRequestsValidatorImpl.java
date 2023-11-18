@@ -1,27 +1,26 @@
 package uk.gov.dwp.uc.pairtest.domain;
 
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.gov.dwp.uc.pairtest.account.AccountValidator;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
 public class TicketTypeRequestsValidatorImpl implements TicketTypeRequestsValidator {
 
-  static final Logger logger = LogManager.getLogger(AccountValidator.class);
-
   public static final Integer MAXIMUM_NUMBER_OF_TICKETS = 20;
+  static final Logger logger = LogManager.getLogger(AccountValidator.class);
 
   @Override
   public boolean areTicketRequestsValid(TicketTypeRequest... ticketTypeRequests) {
 
-    if (areAnyRequestsForNegativeTickets(ticketTypeRequests)) {
-      logger.warn("Ticket type request contains negative ticket number request");
+    if (areAnyRequestsNull(ticketTypeRequests)) {
+      logger.warn("Ticket type request contains null request");
       return false;
     }
 
-    if (areAnyRequestsForNegativeTickets(ticketTypeRequests)) {
+    if (areAnyRequestsForZeroOrLessTickets(ticketTypeRequests)) {
       logger.warn("Ticket type request contains negative ticket number request");
       return false;
     }
@@ -46,9 +45,13 @@ public class TicketTypeRequestsValidatorImpl implements TicketTypeRequestsValida
     return true;
   }
 
-  private boolean areAnyRequestsForNegativeTickets(TicketTypeRequest... ticketTypeRequests) {
+  private boolean areAnyRequestsNull(TicketTypeRequest... ticketTypeRequests) {
+    return Arrays.stream(ticketTypeRequests).anyMatch(Objects::isNull);
+  }
+
+  private boolean areAnyRequestsForZeroOrLessTickets(TicketTypeRequest... ticketTypeRequests) {
     return Arrays.stream(ticketTypeRequests)
-        .anyMatch(ticketTypeRequest -> ticketTypeRequest.getNoOfTickets() < 0);
+        .anyMatch(ticketTypeRequest -> ticketTypeRequest.getNoOfTickets() <= 0);
   }
 
   private boolean areThereMoreAdultsThanInfants(TicketTypeRequest... ticketTypeRequests) {

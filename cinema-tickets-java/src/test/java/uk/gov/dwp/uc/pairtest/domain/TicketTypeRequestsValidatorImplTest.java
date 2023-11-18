@@ -3,91 +3,96 @@ package uk.gov.dwp.uc.pairtest.domain;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import uk.gov.dwp.uc.pairtest.domain.TicketTypeRequest.Type;
 
 public class TicketTypeRequestsValidatorImplTest {
 
-    private TicketTypeRequestsValidator ticketTypeRequestsValidator;
+  TicketTypeRequest adult2TicketRequest;
+  TicketTypeRequest adult15TicketRequest;
+  TicketTypeRequest negativeTicketRequest;
+  TicketTypeRequest zeroTicketRequest;
+  TicketTypeRequest child4TicketRequest;
+  TicketTypeRequest infant1TicketRequest;
+  TicketTypeRequest infant2TicketRequest;
+  private TicketTypeRequestsValidator ticketTypeRequestsValidator;
 
-    @Before
-    public void setUp() {
-        ticketTypeRequestsValidator = new TicketTypeRequestsValidatorImpl();
+  @Before
+  public void setUp() {
+    ticketTypeRequestsValidator = new TicketTypeRequestsValidatorImpl();
+
+    adult2TicketRequest = new TicketTypeRequest(TicketTypeRequest.Type.ADULT, 2);
+    adult15TicketRequest = new TicketTypeRequest(TicketTypeRequest.Type.ADULT, 15);
+    negativeTicketRequest = new TicketTypeRequest(Type.ADULT, -1);
+    zeroTicketRequest = new TicketTypeRequest(Type.ADULT, 0);
+    child4TicketRequest = new TicketTypeRequest(TicketTypeRequest.Type.CHILD, 4);
+    infant1TicketRequest = new TicketTypeRequest(TicketTypeRequest.Type.INFANT, 1);
+    infant2TicketRequest = new TicketTypeRequest(TicketTypeRequest.Type.INFANT, 2);
+  }
+
+  @Test
+  public void requestsContainingNullInvalid() {
+
+    Assert.assertFalse(
+        "Requests for negative number of tickets should be invalid",
+        ticketTypeRequestsValidator.areTicketRequestsValid(adult2TicketRequest, null));
+  }
+
+  @Test
+  public void zeroTicketRequestIsInvalid() {
+      Assert.assertFalse(
+            "Requests for negative number of tickets should be invalid",
+            ticketTypeRequestsValidator.areTicketRequestsValid(adult2TicketRequest, zeroTicketRequest));
     }
 
-    @Test
-    public void negativeTicketRequestIsInvalid() {
+  @Test
+  public void negativeTicketRequestIsInvalid() {
 
-        TicketTypeRequest negativeTicketRequest =
-                new TicketTypeRequest(TicketTypeRequest.Type.ADULT,-1);
+    Assert.assertFalse(
+        "Requests for negative number of tickets should be invalid",
+        ticketTypeRequestsValidator.areTicketRequestsValid(negativeTicketRequest));
+  }
 
-        Assert.assertFalse("Requests for negative number of tickets should be invalid",
-                ticketTypeRequestsValidator.areTicketRequestsValid(negativeTicketRequest));
-    }
+  @Test
+  public void noAdultsTicketRequestsAreInvalid() {
 
-    @Test
-    public void noAdultsTicketRequestsAreInvalid() {
+    Assert.assertFalse(
+        "Requests with no adults should be invalid",
+        ticketTypeRequestsValidator.areTicketRequestsValid(child4TicketRequest));
+  }
 
-        TicketTypeRequest childTicketRequest =
-                new TicketTypeRequest(TicketTypeRequest.Type.CHILD,4);
+  @Test
+  public void moreInfantsThanAdultTicketRequestsAreInvalid() {
 
-        Assert.assertFalse("Requests with no adults should be invalid",
-                ticketTypeRequestsValidator.areTicketRequestsValid(childTicketRequest));
-    }
+    Assert.assertFalse(
+        "Requests with more infants than adults are invalid",
+        ticketTypeRequestsValidator.areTicketRequestsValid(
+            infant1TicketRequest, infant2TicketRequest, adult2TicketRequest));
+  }
 
-    @Test
-    public void moreInfantsThanAdultTicketRequestsAreInvalid() {
+  @Test
+  public void sameInfantsAsAdultTicketRequestsAreValid() {
 
-        TicketTypeRequest childTicketRequest1 =
-                new TicketTypeRequest(TicketTypeRequest.Type.INFANT,1);
+    Assert.assertTrue(
+        "Requests with same number of infants as adults are valid",
+        ticketTypeRequestsValidator.areTicketRequestsValid(
+            infant2TicketRequest, adult2TicketRequest));
+  }
 
-        TicketTypeRequest childTicketRequest2 =
-                new TicketTypeRequest(TicketTypeRequest.Type.INFANT,2);
+  @Test
+  public void requestsForMoreThanMaximumTicketsAreInvalid() {
 
-        TicketTypeRequest adultTicketRequest =
-                new TicketTypeRequest(TicketTypeRequest.Type.ADULT,2);
+    Assert.assertFalse(
+        "Requests with more than maximum number of tickets are invalid",
+        ticketTypeRequestsValidator.areTicketRequestsValid(
+            infant2TicketRequest, child4TicketRequest, adult15TicketRequest));
+  }
 
-        Assert.assertFalse("Requests with more infants than adults are invalid",
-                ticketTypeRequestsValidator.areTicketRequestsValid(childTicketRequest1,
-                        childTicketRequest2, adultTicketRequest));
-    }
+  @Test
+  public void requestsForMaximumTicketsAreValid() {
 
-    @Test
-    public void sameInfantsAsAdultTicketRequestsAre() {
-
-        TicketTypeRequest childTicketRequest =
-                new TicketTypeRequest(TicketTypeRequest.Type.INFANT,8);
-
-        TicketTypeRequest adultTicketRequest =
-                new TicketTypeRequest(TicketTypeRequest.Type.ADULT,8);
-
-        Assert.assertFalse("Requests with same number of infants as adults are valid",
-                ticketTypeRequestsValidator.areTicketRequestsValid(childTicketRequest,
-                        adultTicketRequest, adultTicketRequest));
-    }
-
-    @Test
-    public void requestsForMoreThanMaximumTicketsAreInvalid() {
-
-        TicketTypeRequest infantTicketRequest =
-                new TicketTypeRequest(TicketTypeRequest.Type.INFANT,5);
-
-        TicketTypeRequest childTicketRequest =
-                new TicketTypeRequest(TicketTypeRequest.Type.CHILD,5);
-
-        TicketTypeRequest adultTicketRequest =
-                new TicketTypeRequest(TicketTypeRequest.Type.ADULT,11);
-
-        Assert.assertFalse("Requests with more than maximum number of tickets are invalid",
-                ticketTypeRequestsValidator.areTicketRequestsValid(infantTicketRequest,
-                        childTicketRequest, adultTicketRequest));
-    }
-
-    @Test
-    public void requestsForMaximumTicketsAreValid() {
-
-        TicketTypeRequest adultTicketRequest =
-                new TicketTypeRequest(TicketTypeRequest.Type.ADULT,20);
-
-        Assert.assertTrue("Requests with maximum number of tickets are valid",
-                ticketTypeRequestsValidator.areTicketRequestsValid(adultTicketRequest));
-    }
+    Assert.assertTrue(
+        "Requests with maximum number of tickets are valid",
+        ticketTypeRequestsValidator.areTicketRequestsValid(
+            infant1TicketRequest, child4TicketRequest, adult15TicketRequest));
+  }
 }

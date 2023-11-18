@@ -10,7 +10,7 @@ public class AccountValidatorImpl implements AccountValidator {
 
     @Override
     public boolean isAccountValid(Long accountNumber) {
-        if (accountNumber <= 0) {
+        if (accountNumber == null || accountNumber <= 0) {
             logger.warn("Invalid account number, value is not positive");
             return false;
         }
