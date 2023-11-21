@@ -37,7 +37,7 @@ public class TicketTypeRequestsValidatorImpl implements TicketTypeRequestsValida
       return false;
     }
 
-    if (areThereMoreAdultsThanInfants(ticketTypeRequests)) {
+    if (areThereMoreInfantsThanAdults(ticketTypeRequests)) {
       logger.warn("Requests must have at least the same amount of adults as infants");
       return false;
     }
@@ -54,7 +54,7 @@ public class TicketTypeRequestsValidatorImpl implements TicketTypeRequestsValida
         .anyMatch(ticketTypeRequest -> ticketTypeRequest.getNoOfTickets() <= 0);
   }
 
-  private boolean areThereMoreAdultsThanInfants(TicketTypeRequest... ticketTypeRequests) {
+  private boolean areThereMoreInfantsThanAdults(TicketTypeRequest... ticketTypeRequests) {
     return TicketRequestsCounter.calculateTicketsForType(
             TicketTypeRequest.Type.INFANT, ticketTypeRequests)
         > TicketRequestsCounter.calculateTicketsForType(
